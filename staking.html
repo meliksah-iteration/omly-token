@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MANTRA Chain Staking Calculator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Courier New', monospace;
+      background-color: #201E1D;
+    }
+
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(32, 30, 29, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid rgba(248, 185, 148, 0.3);
+      z-index: 1000;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav-brand {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #F8B994;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .nav-link {
+      color: #F8B994;
+      text-decoration: none;
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
+      border: 1px solid #F8B994;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-link:hover {
+      background: rgba(248, 185, 148, 0.1);
+      color: #FF97D6;
+      border-color: #FF97D6;
+    }
+
+    .social-icons {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .social-icon {
+      width: 24px;
+      height: 24px;
+      fill: #F8B994;
+      transition: fill 0.3s ease;
+    }
+
+    .social-icon:hover {
+      fill: #FF97D6;
+    }
+
+    .container {
+      max-width: 64rem;
+      margin: 0 auto;
+      padding: 2rem;
+      padding-top: 5rem;
+    }
+
+    .title {
+      background: linear-gradient(45deg, #F8B994, #FF97D6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3rem;
+    }
+
+    .header-left h1 {
+      color: #F8B994;
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .header-left p {
+      color: #FF97D6;
+      font-size: 0.875rem;
+      margin: 0;
+    }
+
+    .price-display {
+      background-color: rgba(248, 185, 148, 0.1);
+      color: #F8B994;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+    }
+
+    .calculator-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .calculator-header h2 {
+      background: linear-gradient(45deg, #F8B994, #FF97D6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 1.875rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    .calculator-header p {
+      color: #FF97D6;
+      font-size: 1.125rem;
+      max-width: 42rem;
+      margin: 0 auto 1.5rem;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 1.5rem;
+    }
+
+    .stat-item {
+      text-align: center;
+      color: #F8B994;
+    }
+
+    .stat-item .label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-item .value {
+      color: #FF97D6;
+      font-size: 0.75rem;
+    }
+
+    .calculator-box {
+      border: 2px solid #F8B994;
+      border-radius: 0.75rem;
+      background-color: rgba(248, 185, 148, 0.05);
+      box-shadow: 0 0 30px rgba(248, 185, 148, 0.1);
+      padding: 2rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 1rem;
+      border: 2px solid #F8B994;
+      border-radius: 0.5rem;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .tab.active {
+      background-color: #F8B994;
+    }
+
+    .tab-label {
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+
+    .tab.active .tab-label {
+      color: #201E1D;
+    }
+
+    .tab:not(.active) .tab-label {
+      color: #F8B994;
+    }
+
+    .tab-desc {
+      font-size: 0.75rem;
+    }
+
+    .tab.active .tab-desc {
+      color: #201E1D;
+    }
+
+    .tab:not(.active) .tab-desc {
+      color: #FF97D6;
+    }
+
+    .returns-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .return-card {
+      padding: 1.5rem;
+      border: 2px solid #FF97D6;
+      border-radius: 0.5rem;
+      background-color: rgba(248, 185, 148, 0.05);
+      box-shadow: 0 0 15px rgba(248, 185, 148, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .return-card:hover {
+      box-shadow: 0 0 30px rgba(248, 185, 148, 0.4);
+    }
+
+    .return-amount {
+      color: #F8B994;
+      font-size: 1.25rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    .return-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .return-label {
+      color: #FF97D6;
+    }
+
+    .return-value {
+      text-align: right;
+    }
+
+    .return-om {
+      color: #F8B994;
+      font-weight: bold;
+    }
+
+    .return-usd {
+      color: #FF97D6;
+      font-size: 0.875rem;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 3rem;
+      margin-bottom: 2rem;
+    }
+
+    .footer-title {
+      color: #F8B994;
+      font-size: 1.25rem;
+      font-weight: 500;
+      margin-bottom: 0.75rem;
+    }
+
+    .footer-subtitle {
+      color: #FF97D6;
+      font-size: 0.875rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .cta-button {
+      display: inline-block;
+      background-color: #F8B994;
+      color: #201E1D;
+      padding: 1rem 2rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      margin-bottom: 1.5rem;
+    }
+
+    .cta-button:hover {
+      opacity: 0.9;
+    }
+
+    .footer-note {
+      color: #FF97D6;
+      font-size: 0.875rem;
+      max-width: 32rem;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+      .nav-left {
+        gap: 1rem;
+      }
+      
+      .nav-links {
+        gap: 0.5rem;
+      }
+      
+      .nav-link {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-left">
+      <a href="#" class="nav-brand">
+        <img src="https://omly-bucket.s3.eu-central-1.amazonaws.com/Untitled+design+(1).png" alt="OMLY" style="width: 40px; height: 40px;"/>
+        OMLY
+      </a>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="staking.html" class="nav-link">$OM Stake Calculator</a>
+      </div>
+    </div>
+    <div class="social-icons">
+      <a href="#" target="_blank">
+        <svg class="social-icon" viewBox="0 0 24 24">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>
+      </a>
+      <a href="#" target="_blank">
+        <svg class="social-icon" viewBox="0 0 24 24">
+          <path d="M20.665 3.717l-17.73 6.837c-1.21.486-1.203 1.161-.222 1.462l4.552 1.42l10.532-6.645c.498-.303.953-.14.579.192l-8.533 7.701l-.321 4.843c.47 0 .677-.216.936-.474l2.248-2.185l4.67 3.443c.858.474 1.477.231 1.69-.79l3.058-14.404c.313-1.252-.473-1.82-1.447-1.412z"/>
+        </svg>
+      </a>
+      <a href="#" target="_blank">
+        <img src="https://cryptologos.cc/logos/osmosis-osmo-logo.svg?v=035" alt="Osmosis" class="social-icon" />
+      </a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="title">💰 MANTRA Chain Staking Calculator</div>
+    
+    <div class="header">
+      <div class="header-left">
+        <h1>OM Staking Returns</h1>
+        <p>Lost trading? Here's what staking could have done for you...</p>
+      </div>
+      <div class="price-display" id="price-display">Loading price...</div>
+    </div>
+
+    <div class="calculator-header">
+      <h2>Calculate Your Potential Staking Returns</h2>
+      <p>See how much you could have earned by staking $OM since the MANTRA Chain launch on October 23rd, 2024</p>
+      <div class="stats">
+        <div class="stat-item">
+          <div class="label">APY Rate</div>
+          <div class="value">17.6% Annual Yield</div>
+        </div>
+        <div class="stat-item">
+          <div class="label">Auto-Compound</div>
+          <div class="value">Rewards Update Live</div>
+        </div>
+        <div class="stat-item">
+          <div class="label">Real-Time</div>
+          <div class="value">Updates Every Second</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="calculator-box">
+      <div class="tabs">
+        <button class="tab active" data-tab="current">
+          <div class="tab-label">Current Returns</div>
+          <div class="tab-desc">See your earnings since launch</div>
+        </button>
+        <button class="tab" data-tab="projected">
+          <div class="tab-label">Projected Returns</div>
+          <div class="tab-desc">Calculate future potential earnings</div>
+        </button>
+      </div>
+
+      <div class="returns-container" id="returns-container"></div>
+    </div>
+
+    <div class="footer">
+      <div class="footer-title">Start Staking Today</div>
+      <div class="footer-subtitle">Join thousands of $OM holders earning passive rewards</div>
+      <a href="https://staking.mantradao.com" target="_blank" rel="noopener noreferrer" class="cta-button">
+        Visit Staking Portal
+      </a>
+      <div class="footer-note">
+        Real-time staking rewards calculator. Values update every second based on 17.6% APY.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const YEARLY_YIELD = 0.176;
+    const LAUNCH_DATE = new Date('2024-10-23T00:00:00');
+    const AMOUNTS = [100, 1000, 10000];
+    let currentPrice = 0;
+    let activeTab = 'current';
+
+    async function fetchPrice() {
+      try {
+        const response = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=OMUSDT');
+        const data = await response.json();
+        currentPrice = parseFloat(data.price);
+        document.getElementById('price-display').textContent = `Current $OM Price: $${currentPrice.toFixed(3)}`;
+      } catch (error) {
+        console.error('Error fetching OM price:', error);
+      }
+    }
+
+    function calculateRewards() {
+      const now = new Date();
+      const timeDiff = (now - LAUNCH_DATE) / (1000 * 60 * 60 * 24 * 365);
+      
+      const rewards = AMOUNTS.map(amount => amount * YEARLY_YIELD * timeDiff);
+      const monthProjection = AMOUNTS.map(amount => amount * YEARLY_YIELD * (1/12));
+      const sixMonthProjection = AMOUNTS.map(amount => amount * YEARLY_YIELD * (6/12));
+      const yearProjection = AMOUNTS.map(amount => amount * YEARLY_YIELD);
+
+      const container = document.getElementById('returns-container');
+      container.innerHTML = '';
+
+      AMOUNTS.forEach((amount, index) => {
+        const card = document.createElement('div');
+        card.className = 'return-card';
+
+        if (activeTab === 'current') {
+          card.innerHTML = `
+            <div class="return-row">
+              <div>
+                <div class="return-amount">${amount.toLocaleString()} $OM</div>
+                <div class="return-label">Initial Stake Amount</div>
+              </div>
+              <div class="return-value">
+                <div class="return-om">+${rewards[index].toFixed(6)} $OM</div>
+                <div class="return-usd">$${(rewards[index] * currentPrice).toFixed(2)} USD</div>
+              </div>
+            </div>
+          `;
+        } else {
+          card.innerHTML = `
+            <div class="return-amount">${amount.toLocaleString()} $OM Initial Stake</div>
+            <div class="return-row">
+              <div class="return-label">In 1 Month:</div>
+              <div class="return-value">
+                <div class="return-om">+${monthProjection[index].toFixed(6)} $OM</div>
+                <div class="return-usd">$${(monthProjection[index] * currentPrice).toFixed(2)}</div>
+              </div>
+            </div>
+            <div class="return-row">
+              <div class="return-label">In 6 Months:</div>
+              <div class="return-value">
+                <div class="return-om">+${sixMonthProjection[index].toFixed(6)} $OM</div>
+                <div class="return-usd">$${(sixMonthProjection[index] * currentPrice).toFixed(2)}</div>
+              </div>
+            </div>
+            <div class="return-row">
+              <div class="return-label">In 1 Year:</div>
+              <div class="return-value">
+                <div class="return-om">+${yearProjection[index].toFixed(6)} $OM</div>
+                <div class="return-usd">$${(yearProjection[index] * currentPrice).toFixed(2)}</div>
+              </div>
+            </div>
+          `;
+        }
+
+        container.appendChild(card);
+      });
+    }
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelector('.tab.active').classList.remove('active');
+        tab.classList.add('active');
+        activeTab = tab.dataset.tab;
+        calculateRewards();
+      });
+    });
+
+    // Initial setup
+    fetchPrice();
+    setInterval(fetchPrice, 10000);
+    calculateRewards();
+    setInterval(calculateRewards, 1000);
+  </script>
+</body>
+</html>
